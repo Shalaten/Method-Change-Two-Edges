@@ -42,18 +42,38 @@ void MethodChangeTwoEdges::FindWay()
 	std::vector<Edge> minWay;
 	int minWayWeight = 0;
 	if (true) {
+		std::vector<bool> rightVertices(verticesAmount);
+		rightVertices[0] = true;
+		int lastVertice = 0;
 		for (int i = 0; i < verticesAmount - 1; ++i) {
-			if (i != verticesAmount - 1) {
-				minWay.push_back(edges[i][i + 1]);
-				minWayWeight += edges[i][i + 1].GetWeight();
-				rightEdgesMatrix[i][i + 1] = true;
-				rightEdgesMatrix[i + 1][i] = true;
+			int newWeight = 1000000;
+			int newVertice = 0;
+			Edge newEdge;
+			for (int j = 0; j < verticesAmount; ++j) {
+				if (!rightVertices[j] && edges[lastVertice][j].GetWeight() < newWeight) {
+					newWeight = edges[lastVertice][j].GetWeight();
+					newVertice = j;
+					newEdge = edges[lastVertice][j];
+				}
+			}
+			minWay.push_back(newEdge);
+			minWayWeight += newWeight;
+			rightEdgesMatrix[lastVertice][newVertice] = true;
+			rightEdgesMatrix[newVertice][lastVertice] = true;
+			lastVertice = newVertice;
+			rightVertices[newVertice] = true;
+			if (i == verticesAmount - 2) {
+				minWay.push_back(edges[lastVertice][0]);
+				rightEdgesMatrix[lastVertice][0] = true;
+				rightEdgesMatrix[0][lastVertice] = true;
+				minWayWeight += edges[lastVertice][0].GetWeight();
 			}
 		}
-		minWay.push_back(edges[verticesAmount - 1][0]);
-		minWayWeight += edges[verticesAmount - 1][0].GetWeight();
-		rightEdgesMatrix[verticesAmount - 1][0] = true;
-		rightEdgesMatrix[0][verticesAmount - 1] = true;
+		if (true) {
+			for (int i = 0; i < verticesAmount; ++i) {
+				std::cout << minWay[i].GetFirstPoint() << " - " << minWay[i].GetSecondPoint() << " | ";
+			}
+		}
 	}
 	std::cout << "Start weight = " << minWayWeight << std::endl;
 	int era = 0;
@@ -496,7 +516,7 @@ void MethodChangeTwoEdges::GenerateEdgeMatrix()
 			}
 			else
 			{
-				insideEdgeVector.push_back(Edge(i, j, 1000000.0));
+				insideEdgeVector.push_back(Edge(i, j, 100000.0));
 			}
 		}
 		edges.push_back(insideEdgeVector);
