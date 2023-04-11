@@ -3,5 +3,5 @@
 
 int main(int argc, char* argv[]) {
 	setlocale(LC_ALL, "ru");
-	MethodChangeTwoEdges methodChangeTwoEdges(6);
+	MethodChangeTwoEdges methodChangeTwoEdges(8);
 }

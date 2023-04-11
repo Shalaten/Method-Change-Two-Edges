@@ -212,65 +212,241 @@ void MethodChangeTwoEdges::FindWay()
 							if (tumblerEnd) { break; }
 						}
 					}
-
-				}
-				if (!rightEdgesMatrix[minWay[oneE].GetFirstPoint()][twoE] && !rightEdgesMatrix[minWay[oneE].GetSecondPoint()][twoE]) {
-					// найдём правильные вершины из вершины twoE
-					int oneV = -1;
-					int twoV = -1;
-					for (int i = 0; i < verticesAmount; ++i) {
-						if (rightEdgesMatrix[twoE][i]) {
-							if (oneV == -1) {
-								oneV = i;
+					std::cout << "";
+					if ("MEthod for swap three Edges -PART ONE-") {
+						// В этом случае первое ребро оставляем, второе удаляем
+						int oldWeight = 0 + minWay[twoE].GetWeight();
+						int newWeight = 0;
+						Edge oneDeleteEdge;
+						Edge twoDeleteEdge;
+						int oneDeleteEdgeV = -1;
+						int twoDeleteEdgeV = -1;
+						for (int i = 0; i < verticesAmount; ++i) {
+							if (rightEdgesMatrix[minWay[oneE].GetFirstPoint()][i] && i != minWay[oneE].GetSecondPoint()) {
+								oneDeleteEdge = edges[minWay[oneE].GetFirstPoint()][i];
+								oneDeleteEdgeV = i;
+								oldWeight += oneDeleteEdge.GetWeight();
 							}
-							else {
-								twoV = i;
+							if (rightEdgesMatrix[minWay[oneE].GetSecondPoint()][i] && i != minWay[oneE].GetFirstPoint()) {
+								twoDeleteEdge = edges[minWay[oneE].GetSecondPoint()][i];
+								twoDeleteEdgeV = i;
+								oldWeight += twoDeleteEdge.GetWeight();
+							}
+						}
+						newWeight = edges[oneDeleteEdgeV][twoDeleteEdgeV].GetWeight();
+						int oneDeleteEdgeN = -1;
+						int twoDeleteEdgeN = -1;
+						for (int i = 0; i < verticesAmount; ++i)
+						{
+							if ((minWay[i].GetFirstPoint() == oneDeleteEdge.GetFirstPoint() || minWay[i].GetFirstPoint() == oneDeleteEdge.GetSecondPoint())
+								&& (minWay[i].GetSecondPoint() == oneDeleteEdge.GetFirstPoint() || minWay[i].GetSecondPoint() == oneDeleteEdge.GetSecondPoint())) {
+								oneDeleteEdgeN = i;
+							}
+							if ((minWay[i].GetFirstPoint() == twoDeleteEdge.GetFirstPoint() || minWay[i].GetFirstPoint() == twoDeleteEdge.GetSecondPoint())
+								&& (minWay[i].GetSecondPoint() == twoDeleteEdge.GetFirstPoint() || minWay[i].GetSecondPoint() == twoDeleteEdge.GetSecondPoint())) {
+								twoDeleteEdgeN = i;
+							}
+						}
+						Edge newEdge = edges[oneDeleteEdgeV][twoDeleteEdgeV];
+						// надо проверить какая пара рёбер имеет меньший вес
+						// FirstCase
+						Edge firstCaseEdgeOne = edges[minWay[oneE].GetFirstPoint()][minWay[twoE].GetFirstPoint()];
+						Edge firstCaseEdgeTwo = edges[minWay[oneE].GetSecondPoint()][minWay[twoE].GetSecondPoint()];
+						int firstCaseEdgeWeight = firstCaseEdgeOne.GetWeight() + firstCaseEdgeTwo.GetWeight();
+						// SecondCase
+						Edge secondCaseEdgeOne = edges[minWay[oneE].GetFirstPoint()][minWay[twoE].GetSecondPoint()];
+						Edge secondCaseEdgeTwo = edges[minWay[oneE].GetSecondPoint()][minWay[twoE].GetFirstPoint()];
+						int secondCaseEdgeWeight = secondCaseEdgeOne.GetWeight() + secondCaseEdgeTwo.GetWeight();
+						if (firstCaseEdgeWeight < secondCaseEdgeWeight) {
+							newWeight += firstCaseEdgeWeight;
+							if (oldWeight > newWeight) {
+								std::cout << "Method - 5.1.1" << std::endl;
+								std::cout << "Right Edge | " << minWay[oneE].GetFirstPoint() << " - " << minWay[oneE].GetSecondPoint() << std::endl;
+								std::cout << "Choose edges | " << minWay[twoE].GetFirstPoint() << " - " << minWay[twoE].GetSecondPoint() << " | " << oneDeleteEdge.GetFirstPoint() << " - " << oneDeleteEdge.GetSecondPoint() << " | " << twoDeleteEdge.GetFirstPoint() << " - " << twoDeleteEdge.GetSecondPoint() << std::endl;
+								std::cout << "Change edges | " << newEdge.GetFirstPoint() << " - " << newEdge.GetSecondPoint() << " | " << firstCaseEdgeOne.GetFirstPoint() << " - " << firstCaseEdgeOne.GetSecondPoint() << " | " << firstCaseEdgeTwo.GetFirstPoint() << " - " << firstCaseEdgeTwo.GetSecondPoint() << std::endl;
+								// теперь удалим рёбра в матрице правильных рёбер
+								rightEdgesMatrix[minWay[twoE].GetFirstPoint()][minWay[twoE].GetSecondPoint()] = false;
+								rightEdgesMatrix[minWay[twoE].GetSecondPoint()][minWay[twoE].GetFirstPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetFirstPoint()][oneDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetSecondPoint()][oneDeleteEdge.GetFirstPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetFirstPoint()][twoDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetSecondPoint()][twoDeleteEdge.GetFirstPoint()] = false;
+								// добавляем правильные рёбра
+								rightEdgesMatrix[oneDeleteEdgeV][twoDeleteEdgeV] = true;
+								rightEdgesMatrix[twoDeleteEdgeV][oneDeleteEdgeV] = true;
+								// для данного варианта рёбра
+								rightEdgesMatrix[firstCaseEdgeOne.GetFirstPoint()][firstCaseEdgeOne.GetSecondPoint()] = true;
+								rightEdgesMatrix[firstCaseEdgeOne.GetSecondPoint()][firstCaseEdgeOne.GetFirstPoint()] = true;
+								rightEdgesMatrix[firstCaseEdgeTwo.GetFirstPoint()][firstCaseEdgeTwo.GetSecondPoint()] = true;
+								rightEdgesMatrix[firstCaseEdgeTwo.GetSecondPoint()][firstCaseEdgeTwo.GetFirstPoint()] = true;
+								minWay[twoE] = newEdge;
+								minWay[oneDeleteEdgeN] = firstCaseEdgeOne;
+								minWay[twoDeleteEdgeN] = firstCaseEdgeTwo;
+								minWayWeight = minWayWeight - oldWeight + newWeight;
+								tumbler = true;
+								if (true) {
+									for (int i = 0; i < verticesAmount; ++i) {
+										std::cout << minWay[i].GetFirstPoint() << " - " << minWay[i].GetSecondPoint() << " | ";
+									}
+									std::cout << minWayWeight << std::endl;
+								}
+								break;
+							}
+						}
+						else {
+							newWeight += secondCaseEdgeWeight;
+							if (oldWeight > newWeight) {
+								std::cout << "Method - 5.1.2" << std::endl;
+								std::cout << "Right Edge | " << minWay[oneE].GetFirstPoint() << " - " << minWay[oneE].GetSecondPoint() << std::endl;
+								std::cout << "Choose edges | " << minWay[twoE].GetFirstPoint() << " - " << minWay[twoE].GetSecondPoint() << " | " << oneDeleteEdge.GetFirstPoint() << " - " << oneDeleteEdge.GetSecondPoint() << " | " << twoDeleteEdge.GetFirstPoint() << " - " << twoDeleteEdge.GetSecondPoint() << std::endl;
+								std::cout << "Change edges | " << newEdge.GetFirstPoint() << " - " << newEdge.GetSecondPoint() << " | " << secondCaseEdgeOne.GetFirstPoint() << " - " << secondCaseEdgeOne.GetSecondPoint() << " | " << secondCaseEdgeTwo.GetFirstPoint() << " - " << secondCaseEdgeTwo.GetSecondPoint() << std::endl;
+								// теперь удалим рёбра в матрице правильных рёбер
+								// теперь удалим рёбра в матрице правильных рёбер
+								rightEdgesMatrix[minWay[twoE].GetFirstPoint()][minWay[twoE].GetSecondPoint()] = false;
+								rightEdgesMatrix[minWay[twoE].GetSecondPoint()][minWay[twoE].GetFirstPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetFirstPoint()][oneDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetSecondPoint()][oneDeleteEdge.GetFirstPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetFirstPoint()][twoDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetSecondPoint()][twoDeleteEdge.GetFirstPoint()] = false;
+								// добавляем правильные рёбра
+								rightEdgesMatrix[oneDeleteEdgeV][twoDeleteEdgeV] = true;
+								rightEdgesMatrix[twoDeleteEdgeV][oneDeleteEdgeV] = true;
+								// для данного варианта рёбра
+								rightEdgesMatrix[secondCaseEdgeOne.GetFirstPoint()][secondCaseEdgeOne.GetSecondPoint()] = true;
+								rightEdgesMatrix[secondCaseEdgeOne.GetSecondPoint()][secondCaseEdgeOne.GetFirstPoint()] = true;
+								rightEdgesMatrix[secondCaseEdgeTwo.GetFirstPoint()][secondCaseEdgeTwo.GetSecondPoint()] = true;
+								rightEdgesMatrix[secondCaseEdgeTwo.GetSecondPoint()][secondCaseEdgeTwo.GetFirstPoint()] = true;
+								minWay[twoE] = newEdge;
+								minWay[oneDeleteEdgeN] = secondCaseEdgeOne;
+								minWay[twoDeleteEdgeN] = secondCaseEdgeTwo;
+								minWayWeight = minWayWeight - oldWeight + newWeight;
+								tumbler = true;
+								if (true) {
+									for (int i = 0; i < verticesAmount; ++i) {
+										std::cout << minWay[i].GetFirstPoint() << " - " << minWay[i].GetSecondPoint() << " | ";
+									}
+									std::cout << minWayWeight << std::endl;
+								}
+								break;
 							}
 						}
 					}
-					// теперь нужно удалить новонайденые рёбра и выбраное ребро и найти номера нововыбраных рёбер
-					int oneEdgeN = -1;
-					int twoEdgeN = -1;
-					for (int i = 0; i < verticesAmount; ++i) {
-						if ((minWay[i].GetFirstPoint() == oneV && minWay[i].GetSecondPoint() == twoE) || (minWay[i].GetFirstPoint() == twoE && minWay[i].GetSecondPoint() == oneV)) {
-							oneEdgeN = i;
-						}
-						if ((minWay[i].GetFirstPoint() == twoV && minWay[i].GetSecondPoint() == twoE) || (minWay[i].GetFirstPoint() == twoE && minWay[i].GetSecondPoint() == twoV)) {
-							twoEdgeN = i;
-						}
-					}
-					int chooseEdgesSum = minWay[oneE].GetWeight() + minWay[oneEdgeN].GetWeight() + minWay[twoEdgeN].GetWeight();
-					int cheeckEdgesSum = edges[oneV][twoV].GetWeight() + edges[twoE][minWay[oneE].GetFirstPoint()].GetWeight() + edges[twoE][minWay[oneE].GetSecondPoint()].GetWeight();
-					if (chooseEdgesSum > cheeckEdgesSum) {
-						// то произвести замену
-						std::cout << "Method - 4" << std::endl;
-						std::cout << "Choose edges | " << minWay[oneE].GetFirstPoint() << " - " << minWay[oneE].GetSecondPoint() << " | " << oneV << " - " << twoE << " | " << twoV << " - " << twoE << std::endl;
-						std::cout << "Change edges | " << oneV << " - " << twoV << " | " << minWay[oneE].GetFirstPoint() << " - " << twoE << " | " << minWay[oneE].GetSecondPoint() << " - " << twoE << std::endl;
-						std::cout << "Minus weight - " << chooseEdgesSum - cheeckEdgesSum << std::endl;
-						rightEdgesMatrix[oneV][twoE] = false;
-						rightEdgesMatrix[twoE][oneV] = false;
-						rightEdgesMatrix[twoV][twoE] = false;
-						rightEdgesMatrix[twoE][twoV] = false;
-						rightEdgesMatrix[minWay[oneE].GetFirstPoint()][minWay[oneE].GetSecondPoint()] = false;
-						rightEdgesMatrix[minWay[oneE].GetSecondPoint()][minWay[oneE].GetFirstPoint()] = false;
-						rightEdgesMatrix[oneV][twoV] = true;
-						rightEdgesMatrix[twoV][oneV] = true;
-						rightEdgesMatrix[minWay[oneE].GetFirstPoint()][twoE] = true;
-						rightEdgesMatrix[twoE][minWay[oneE].GetFirstPoint()] = true;
-						rightEdgesMatrix[minWay[oneE].GetSecondPoint()][twoE] = true;
-						rightEdgesMatrix[twoE][minWay[oneE].GetSecondPoint()] = true;
-						minWayWeight = minWayWeight - chooseEdgesSum + cheeckEdgesSum;
-						minWay[oneEdgeN] = edges[minWay[oneE].GetFirstPoint()][twoE];
-						minWay[twoEdgeN] = edges[minWay[oneE].GetSecondPoint()][twoE];
-						minWay[oneE] = edges[oneV][twoV];
-						tumbler = true;
-						if (true) {
-							for (int i = 0; i < verticesAmount; ++i) {
-								std::cout << minWay[i].GetFirstPoint() << " - " << minWay[i].GetSecondPoint() << " | ";
+					if ("MEthod for swap three Edges -PART TWO-") {
+						// В этом случае второе ребро оставляем, первое удаляем
+						int oldWeight = 0 + minWay[oneE].GetWeight();
+						int newWeight = 0;
+						Edge oneDeleteEdge;
+						Edge twoDeleteEdge;
+						int oneDeleteEdgeV = -1;
+						int twoDeleteEdgeV = -1;
+						for (int i = 0; i < verticesAmount; ++i) {
+							if (rightEdgesMatrix[minWay[twoE].GetFirstPoint()][i] && i != minWay[twoE].GetSecondPoint()) {
+								oneDeleteEdge = edges[i][minWay[twoE].GetFirstPoint()];
+								oneDeleteEdgeV = i;
+								oldWeight += oneDeleteEdge.GetWeight();
 							}
-							std::cout << minWayWeight << std::endl;
+							if (rightEdgesMatrix[minWay[twoE].GetSecondPoint()][i] && i != minWay[twoE].GetFirstPoint()) {
+								twoDeleteEdge = edges[minWay[twoE].GetSecondPoint()][i];
+								twoDeleteEdgeV = i;
+								oldWeight += twoDeleteEdge.GetWeight();
+							}
 						}
-						break;
+						newWeight = edges[oneDeleteEdgeV][twoDeleteEdgeV].GetWeight();
+						int oneDeleteEdgeN = -1;
+						int twoDeleteEdgeN = -1;
+						for (int i = 0; i < verticesAmount; ++i)
+						{
+							if ((minWay[i].GetFirstPoint() == oneDeleteEdge.GetFirstPoint() || minWay[i].GetFirstPoint() == oneDeleteEdge.GetSecondPoint())
+								&& (minWay[i].GetSecondPoint() == oneDeleteEdge.GetFirstPoint() || minWay[i].GetSecondPoint() == oneDeleteEdge.GetSecondPoint())) {
+								oneDeleteEdgeN = i;
+							}
+							if ((minWay[i].GetFirstPoint() == twoDeleteEdge.GetFirstPoint() || minWay[i].GetFirstPoint() == twoDeleteEdge.GetSecondPoint())
+								&& (minWay[i].GetSecondPoint() == twoDeleteEdge.GetFirstPoint() || minWay[i].GetSecondPoint() == twoDeleteEdge.GetSecondPoint())) {
+								twoDeleteEdgeN = i;
+							}
+						}
+						Edge newEdge = edges[oneDeleteEdgeV][twoDeleteEdgeV];
+						// надо проверить какая пара рёбер имеет меньший вес
+						// FirstCase
+						Edge firstCaseEdgeOne = edges[minWay[twoE].GetFirstPoint()][minWay[oneE].GetFirstPoint()];
+						Edge firstCaseEdgeTwo = edges[minWay[twoE].GetSecondPoint()][minWay[oneE].GetSecondPoint()];
+						int firstCaseEdgeWeight = firstCaseEdgeOne.GetWeight() + firstCaseEdgeTwo.GetWeight();
+						// SecondCase
+						Edge secondCaseEdgeOne = edges[minWay[twoE].GetFirstPoint()][minWay[oneE].GetSecondPoint()];
+						Edge secondCaseEdgeTwo = edges[minWay[twoE].GetSecondPoint()][minWay[oneE].GetFirstPoint()];
+						int secondCaseEdgeWeight = secondCaseEdgeOne.GetWeight() + secondCaseEdgeTwo.GetWeight();
+						if (firstCaseEdgeWeight < secondCaseEdgeWeight) {
+							newWeight += firstCaseEdgeWeight;
+							if (oldWeight > newWeight) {
+								std::cout << "Method - 5.2.1" << std::endl;
+								std::cout << "Right Edge | " << minWay[twoE].GetFirstPoint() << " - " << minWay[twoE].GetSecondPoint() << std::endl;
+								std::cout << "Choose edges | " << minWay[oneE].GetFirstPoint() << " - " << minWay[oneE].GetSecondPoint() << " | " << oneDeleteEdge.GetFirstPoint() << " - " << oneDeleteEdge.GetSecondPoint() << " | " << twoDeleteEdge.GetFirstPoint() << " - " << twoDeleteEdge.GetSecondPoint() << std::endl;
+								std::cout << "Change edges | " << newEdge.GetFirstPoint() << " - " << newEdge.GetSecondPoint() << " | " << firstCaseEdgeOne.GetFirstPoint() << " - " << firstCaseEdgeOne.GetSecondPoint() << " | " << firstCaseEdgeTwo.GetFirstPoint() << " - " << firstCaseEdgeTwo.GetSecondPoint() << std::endl;
+								// теперь удалим рёбра в матрице правильных рёбер
+								rightEdgesMatrix[minWay[oneE].GetFirstPoint()][minWay[oneE].GetSecondPoint()] = false;
+								rightEdgesMatrix[minWay[oneE].GetSecondPoint()][minWay[oneE].GetFirstPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetFirstPoint()][oneDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetSecondPoint()][oneDeleteEdge.GetFirstPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetFirstPoint()][twoDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetSecondPoint()][twoDeleteEdge.GetFirstPoint()] = false;
+								// добавляем правильные рёбра
+								rightEdgesMatrix[oneDeleteEdgeV][twoDeleteEdgeV] = true;
+								rightEdgesMatrix[twoDeleteEdgeV][oneDeleteEdgeV] = true;
+								// для данного варианта рёбра
+								rightEdgesMatrix[firstCaseEdgeOne.GetFirstPoint()][firstCaseEdgeOne.GetSecondPoint()] = true;
+								rightEdgesMatrix[firstCaseEdgeOne.GetSecondPoint()][firstCaseEdgeOne.GetFirstPoint()] = true;
+								rightEdgesMatrix[firstCaseEdgeTwo.GetFirstPoint()][firstCaseEdgeTwo.GetSecondPoint()] = true;
+								rightEdgesMatrix[firstCaseEdgeTwo.GetSecondPoint()][firstCaseEdgeTwo.GetFirstPoint()] = true;
+								minWay[oneE] = newEdge;
+								minWay[oneDeleteEdgeN] = firstCaseEdgeOne;
+								minWay[twoDeleteEdgeN] = firstCaseEdgeTwo;
+								minWayWeight = minWayWeight - oldWeight + newWeight;
+								tumbler = true;
+								if (true) {
+									for (int i = 0; i < verticesAmount; ++i) {
+										std::cout << minWay[i].GetFirstPoint() << " - " << minWay[i].GetSecondPoint() << " | ";
+									}
+									std::cout << minWayWeight << std::endl;
+								}
+								break;
+							}
+						}
+						else {
+							newWeight += secondCaseEdgeWeight;
+							if (oldWeight > newWeight) {
+								std::cout << "Method - 5.2.2" << std::endl;
+								std::cout << "Right Edge | " << minWay[twoE].GetFirstPoint() << " - " << minWay[twoE].GetSecondPoint() << std::endl;
+								std::cout << "Choose edges | " << minWay[twoE].GetFirstPoint() << " - " << minWay[twoE].GetSecondPoint() << " | " << oneDeleteEdge.GetFirstPoint() << " - " << oneDeleteEdge.GetSecondPoint() << " | " << twoDeleteEdge.GetFirstPoint() << " - " << twoDeleteEdge.GetSecondPoint() << std::endl;
+								std::cout << "Change edges | " << newEdge.GetFirstPoint() << " - " << newEdge.GetSecondPoint() << " | " << secondCaseEdgeOne.GetFirstPoint() << " - " << secondCaseEdgeOne.GetSecondPoint() << " | " << secondCaseEdgeTwo.GetFirstPoint() << " - " << secondCaseEdgeTwo.GetSecondPoint() << std::endl;
+								// теперь удалим рёбра в матрице правильных рёбер
+								rightEdgesMatrix[minWay[oneE].GetFirstPoint()][minWay[oneE].GetSecondPoint()] = false;
+								rightEdgesMatrix[minWay[oneE].GetSecondPoint()][minWay[oneE].GetFirstPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetFirstPoint()][oneDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[oneDeleteEdge.GetSecondPoint()][oneDeleteEdge.GetFirstPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetFirstPoint()][twoDeleteEdge.GetSecondPoint()] = false;
+								rightEdgesMatrix[twoDeleteEdge.GetSecondPoint()][twoDeleteEdge.GetFirstPoint()] = false;
+								// добавляем правильные рёбра
+								rightEdgesMatrix[oneDeleteEdgeV][twoDeleteEdgeV] = true;
+								rightEdgesMatrix[twoDeleteEdgeV][oneDeleteEdgeV] = true;
+								// для данного варианта рёбра
+								rightEdgesMatrix[secondCaseEdgeOne.GetFirstPoint()][secondCaseEdgeOne.GetSecondPoint()] = true;
+								rightEdgesMatrix[secondCaseEdgeOne.GetSecondPoint()][secondCaseEdgeOne.GetFirstPoint()] = true;
+								rightEdgesMatrix[secondCaseEdgeTwo.GetFirstPoint()][secondCaseEdgeTwo.GetSecondPoint()] = true;
+								rightEdgesMatrix[secondCaseEdgeTwo.GetSecondPoint()][secondCaseEdgeTwo.GetFirstPoint()] = true;
+								minWay[oneE] = newEdge;
+								minWay[oneDeleteEdgeN] = secondCaseEdgeOne;
+								minWay[twoDeleteEdgeN] = secondCaseEdgeTwo;
+								minWayWeight = minWayWeight - oldWeight + newWeight;
+								tumbler = true;
+								if (true) {
+									for (int i = 0; i < verticesAmount; ++i) {
+										std::cout << minWay[i].GetFirstPoint() << " - " << minWay[i].GetSecondPoint() << " | ";
+									}
+									std::cout << minWayWeight << std::endl;
+								}
+								break;
+							}
+						}
 					}
 				}
 				/////////
